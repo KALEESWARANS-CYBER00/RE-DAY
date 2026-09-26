@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Clock, Calendar, CheckSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Menu, X, Clock, Calendar, CheckSquare, User as UserIcon, LogIn } from 'lucide-react';
 import { formatDisplayDate } from '../utils/storage';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   currentDateStr: string;
@@ -13,6 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   completionPercentage,
   completedHours,
 }) => {
+  const { currentUser, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -88,8 +91,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           ))}
         </nav>
 
-        {/* Right side: Current Date & Daily Progress */}
-        <div className="hidden sm:flex items-center gap-4">
+        {/* Right side: Date, Progress & Auth Controls */}
+        <div className="hidden sm:flex items-center gap-3">
           {/* Current Date */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/60 border border-zinc-800 text-xs text-zinc-300 font-mono">
             <Calendar className="w-3.5 h-3.5 text-crimson" />
@@ -98,20 +101,47 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Daily Progress Indicator */}
           <div 
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-crimson/30 text-xs font-mono shadow-red-glow-sm"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900/80 border border-crimson/30 text-xs font-mono shadow-red-glow-sm"
             title={`${completedHours} of 24 hours completed`}
           >
             <div className="flex items-center gap-1.5">
               <CheckSquare className="w-3.5 h-3.5 text-crimson" />
               <span className="text-zinc-300 font-semibold">{completionPercentage}%</span>
             </div>
-            <div className="w-14 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="w-10 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
               <div
                 className="h-full bg-crimson transition-all duration-500 rounded-full"
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>
+
+          {/* Authentication Links */}
+          {isAuthenticated ? (
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-crimson hover:bg-crimson-600 text-white text-xs font-mono font-bold tracking-wider uppercase transition-colors shadow-red-glow-sm"
+            >
+              <UserIcon className="w-3.5 h-3.5" />
+              <span>Workspace</span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium tracking-wider uppercase transition-colors"
+              >
+                <LogIn className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Sign In</span>
+              </Link>
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-crimson hover:bg-crimson-600 text-white text-xs font-mono font-bold tracking-wider uppercase transition-colors shadow-red-glow-sm"
+              >
+                <span>Get Started</span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -158,6 +188,33 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {completedHours}/24 HOURS
               </span>
             </div>
+
+            {isAuthenticated ? (
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-2 block w-full py-2.5 rounded-xl bg-crimson text-center text-xs font-mono font-bold text-white uppercase tracking-wider"
+              >
+                Go to Workspace ({currentUser?.name})
+              </Link>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-center text-xs font-mono text-zinc-200 uppercase"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 rounded-xl bg-crimson text-center text-xs font-mono font-bold text-white uppercase tracking-wider"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
