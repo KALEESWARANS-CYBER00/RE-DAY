@@ -335,7 +335,7 @@ export function resetDayData(dateStr: string): DayData {
 }
 
 export function clearCompletedPlanner(dateStr: string, currentData: DayData): DayData {
-  const updatedRows = currentData.plannerRows.map(row => {
+  const updatedRows = currentData.plannerRows.map((row: PlannerRowData) => {
     if (row.status === 'DONE') {
       return {
         ...row,
